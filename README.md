@@ -1,5 +1,5 @@
 # CSE151A Project
-Our project theme is revolved around training a reinforcement learning (RL) model on winning the card game, Uno. 
+Our project theme is revolved around training a reinforcement learning (RL) model on winning the card game, Uno. Since our project is utilizing reinforcement learning, our data cannot be grabbed from online resources and has to be generated through simulating gameplay. We contacted the Professor to recommend any suggestions to how to answer the MS2 questions because of this challenge and suggested we think of our data and implementation at a high level, thus leading to the rest of this README.
 
 We aim to optimize this model by tweaking the reward system of the model so that it can obtain the best winning choices (i.e. distinguishing between good and poor moves given the current game state).
 
