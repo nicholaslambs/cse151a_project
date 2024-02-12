@@ -12,3 +12,15 @@ Furthermore, we'll learn types of data might be important for the RL Agent to kn
 This puts in a situation where we're currently missing a lot of data. While this might sound alarming, we've already started gathering data that we think might be useful for the RL Agent to know about. 
 
 ## Data Plots
+![image](https://github.com/nicholaslambs/cse151a_project/assets/57384225/401eb7f6-c681-471b-9a7d-caa4d5ff385a)
+
+For this data, we wanted to simulated 100 games with 3 basic agents to see the average length of a game considering basic moves. From this data, we can think the RL Agent can use this to learn several things:
+- adjusting the reward function by winning in fewer turns
+- understanding the common trend of where a player might win
+- judging the RL Agent based on the distribution of turns (i.e. positively reward if they win really early, a lot less reward if they win later on?)
+
+![image](https://github.com/nicholaslambs/cse151a_project/assets/57384225/27a96976-aac5-4c93-b412-ea00af98d205)
+
+For this data, we wanted to simulated 1000 with 3 basic agents to see the common trend with the game actions. Using this data, the RL Agent can better understand the typical action distribution within Uno and can adjust the strategy based on this data. The agent can also be better rewarded for choosing actions that are more common in successful games. Furthermore, the agent can learn the value of specific moves by taking specific action, given a particular game state (i.e. which cards have been played and the current top card).
+
+We're still very much working hard to gather more important data, but it is difficult given how we need to be more creative on our perspective with the model and simulations.
