@@ -5,6 +5,8 @@ We aim to optimize this model by tweaking the reward system of the model so that
 
 Currently, our simulation does not support some cards from the game (+4 and wild cards) so there are some rules that are currently excluded but is planned to be added in the very near future. You can find our current implementation of the simulation and RL model in [this notebook](https://github.com/nicholaslambs/cse151a_project/blob/main/unosharedbase2.ipynb).
 
+For additional references to MS2 answers, please refer to [this other Markdown file](https://github.com/nicholaslambs/cse151a_project/blob/main/MS2Data.md)
+
 # The Rules of Uno
 You can find the general rules of Uno, [here](https://en.wikipedia.org/wiki/Uno_(card_game)). Since our current implementation (as of MS2 submission) does not support most wild cards, we can ignore any rules regarding following wild cards.
 
