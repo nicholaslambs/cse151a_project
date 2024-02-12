@@ -67,6 +67,13 @@ Since we're still in the early stages of our project, this reward system is defi
 
 Our current reward system feels a little barebones, but we are aiming to increase its complexity as we continue working on this project. For example, we definitely want the model to learn complex and smart decisions based on the previous game states (i.e. exactly what cards have been played may impact which card(s) it wants to play). 
 
+Additionally, we're still researching on which learning model to train our RL agent on. Currently, we're deciding between:
+- Stochastic Gradient Descent + Ascent (losing + winning games, respectively)
+- Q-Learning (learning optimal moves by determining their value)
+- SARSA
+
+We're currently in the process of researching several concepts, topics, and papers to further our learning on Reinforcement Learning so that our RL Agent can improve the most at Uno.
+
 ## Goals Moving Forward
 With this project, we aim to optimize the RL model by essentially becoming the agent. In the current state of our simulation and model, we see:
 - our current hand of cards
@@ -84,3 +91,11 @@ Additionally, we were thinking of tackling a potential problem with our agent's 
 Encoding the current top card will be done in a one-hot array of size 17. The first 4 will be one-hot encoded for the color of the card, and the next 13 will be one-hot encoded for the value of the card.
 
 The penalty is the number of cards the agent has to draw. This is potentially difficult to implement, since we have to encode it in a finite number of units but it could technically stack for a really long time (in the case where players keep stacking Plus2 cards). So we propose starting with an array of size 3, one-hot encoded for how high the penalty is. If it's 1 (for drawing one card, the standard) then the vector would be `[0, 0, 0]`. For every Plus2 card that's stacked, the vector has a 1 slightly further to the right. If there are 3 or more Plus2 cards stacked, then the vector would be `[0, 0, 1]`.
+
+---
+**Resources and other credits**:
+- https://github.com/bernhard-pfann/uno-card-game-rl
+- https://web.stanford.edu/class/aa228/reports/2020/final79.pdf
+- https://rlcard.org/
+
+*Note:* The repository referenced above is not a repository we're referencing, but we were told to include this reference to avoid any AI violations (and other sorts of trouble).
