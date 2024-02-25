@@ -1,11 +1,17 @@
 # CSE151A Project
-Our project theme is revolved around training a reinforcement learning (RL) model on winning the card game, Uno. Since our project is utilizing reinforcement learning, our data cannot be grabbed from online resources and has to be generated through simulating gameplay. We contacted the Professor to recommend any suggestions to how to answer the MS2 questions because of this challenge and suggested we think of our data and implementation at a high level, thus leading to the rest of this README.
+Our project theme is revolved around training a reinforcement learning (RL) model on winning the card game, Uno. Since our project is utilizing reinforcement learning, our data cannot be directly grabbed from online resources and has to be generated through simulating gameplay. We contacted the Professor to recommend any suggestions to how to answer the MS2 and MS3 questions because of this challenge and suggested we think of our data and implementation at a high level, thus leading to the rest of this README.
+
+You can find more details on the milestone READMEs in the `milestones` folder or by clicking [here](https://github.com/nicholaslambs/cse151a_project/blob/main/milestones/ms3/README.md) for the most recent milestone README.
 
 We aim to optimize this model by tweaking the reward system of the model so that it can obtain the best winning choices (i.e. distinguishing between good and poor moves given the current game state).
 
-Currently, our simulation does not support some cards from the game (+4 and wild cards) so there are some rules that are currently excluded but is planned to be added in the very near future. You can find our current implementation of the simulation and RL model in [this notebook](https://github.com/nicholaslambs/cse151a_project/blob/main/unosharedbase2.ipynb).
+Currently, our simulation comes from using the RL Card library to train our model. You can find their documentation about Uno [here](https://rlcard.org/games.html#uno). The RL Card library provides a strong framework for the purposes of our project where we have ready access to the simulated Uno environment and a variety of tools to train a reinforcement learning model.
 
-For additional references to MS2 answers, please refer to [this other Markdown file](https://github.com/nicholaslambs/cse151a_project/blob/main/MS2Data.md)
+For additional references to MS2 answers, please refer to [this other Markdown file](https://github.com/nicholaslambs/cse151a_project/blob/main/milestones/ms2/README.md)
+
+For additional references to MS3 answers, please refer to [this other Markdown file](https://github.com/nicholaslambs/cse151a_project/blob/main/milestones/ms3/README.md)
+
+Our group is gathering and simulating all this within the Python Notebook, `rl_card.ipynb`. You can find the notebook in the `rl_card` directory or [here](https://github.com/nicholaslambs/cse151a_project/blob/main/rl_card/rl_card.ipynb)
 
 # The Rules of Uno
 You can find the general rules of Uno, [here](https://en.wikipedia.org/wiki/Uno_(card_game)). Since our current implementation (as of MS2 submission) does not support most wild cards, we can ignore any rules regarding following wild cards.
@@ -18,41 +24,36 @@ To list a few general (but important) rules of Uno:
 - a card can only be placed over the top card if it matches the top card's color and/or number or if they place a wild card
 
 ## Game Representation
-The game is initialized by the following actions, before any players are able to make any moves:
-1. populates deck
-2. the deck is shuffled
-3. seven (7) cards are dealt to each player
-4. one (1) card is placed into the discard and makes it the top facing card
+The way that the RL Card library represents the states of Uno is very interesting. The game state or the observation space in Uno is represented through a multi-dimensional array, detailing the current player's hand, the discard pile's top card (target), and a summary of what's known about the other players' hands. This state encapsulation allows an RL model to understand the current game situation, make decisions, and learn from the outcomes.
 
-We can refer to the following objects of the game by:
-- game master: keeps track of current game state
-  - deck of cards (list of tuples): what players draw additional cards from
-  - discard pile (list of tuples): in order that cards have been played
-  - top card (single tuple): represents the current face-up card on top of the deck
-  - penalty (int): this is how many cards a player draws if they decide to draw 
-- agents: current "players" in the game (also keeps track of whose turn it is)
+**Deck and Cards:** Uno is played with a special deck containing four colors (red, green, blue, yellow) of number cards (0-9) and action cards (Skip, Reverse, Draw Two, Wild, Wild Draw Four). RLCard encodes these cards and their functionalities within the game logic, ensuring that the deck initialization, shuffling, and dealing processes mirror the real Uno game.
 
-Each card is represented as tuple that carries the card's (1) card color (red, green, blue, yellow) and (2) number value (1-9).
-- `{"2", 2}`: represents a green colored card that has a number label 2
+## State Representation
+**Observation Space:** The game state or the observation space in Uno is represented through a multi-dimensional array or a more structured format, detailing the current player's hand, the discard pile's top card (target), and a summary of what's known about the other players' hands. This state encapsulation allows an RL model to understand the current game situation, make decisions, and learn from the outcomes.
 
-After the game has been initialized, the current player to make a move has the following options:
-- play a card that either has the (1) same color as the top card and/or (2) same number as the top card
-- if the player cannot play any of their cards, draw a card from the deck of cards until they're able to make a valid move
+**Feature Encoding:** The state is encoded into feature planes to facilitate learning by the RL algorithms. These planes include the player’s hand, the current target card on the discard pile, and an approximation of the other players' hands, structured in a way that an RL algorithm can process (e.g., a 4x15 matrix for color and card type representation).
 
-Once the player has made a move, then the next player is moved onto and the same choices are applied to them. We continue this until all players have moved at least once in an iteration and the order of the players will always be the same for continuing iterations. 
+## Action Representation
+**Action Space:** RLCard defines a discrete action space for Uno, with actions corresponding to playing one of the cards in the player's hand or drawing a card from the deck. Each possible action (e.g., playing a red 3, a green skip, drawing a card) is assigned a unique identifier within a predefined range.
 
-# Implementing the RL Agent
-## The Strategies
-**Basic** Agent:
-- this is a simple agent that has its hand of cards represented as a list or array data structure
-- it will be our 'control' player, which linearly searches through its hand from left to right and selects the first playable card
-- it always plays legal moves
-- for example, if Plus2 cards are being stacked, then it will try to play another Plus2 card if it has one in hand before drawing cards
+**Legal Actions:** At any given state, the environment identifies and provides a subset of legal actions based on the current player's hand and the target card on the discard pile. This mechanism ensures that the RL algorithms operate within the game rules, selecting only feasible moves.
 
-**Reinforcement Learning** (RL) Agent:
-- this is the agent we are trying to implement
-- at first, we would like it so that it doesn't know anything except that on its turn, it should make a move
-- this can include illegal moves, so hopefully with some training it learns not to make moves that are illegal and immediately lose it the game
+# Implementing the Game Agents
+## Random Agent
+The random agent is a simpler agent that does not learn from interactions with the environment. Instead, it makes decisions entirely at random, providing a baseline level of performance against which the learning agents can be compared.
+
+At each step, the random agent selects an action randomly from the set of legal actions provided by the environment. There's no consideration for the state of the game or the potential outcomes of these actions.
+
+## Reinforcement Learning DQN Agent
+The DQN agent in RLCard is a more sophisticated type of agent that utilizes deep learning to make decisions. The DQN algorithm aims to approximate the optimal action-value function (Q-function), which gives the expected return of taking an action in a given state and following a certain policy thereafter.
+
+Experience Replay: DQN uses an experience replay mechanism to break the correlations between consecutive steps by storing the agent's experiences at each time step in a replay buffer. A mini-batch of these experiences is randomly sampled and used to train the network, improving stability and efficiency.
+
+Target Network: To further stabilize training, DQN employs a separate target network to generate the Q-value targets for updates. This target network has the same architecture as the primary network but its weights are updated less frequently to provide consistent targets.
+
+Epsilon-Greedy Strategy: To balance exploration and exploitation, DQN typically uses an epsilon-greedy strategy, where the agent selects random actions with probability epsilon and the best-known action with probability 1-epsilon. Epsilon is often decayed over time to shift from exploration to exploitation.
+
+Training and Update Rule: The training process involves using the Bellman equation to update the Q-values towards better estimates. The loss function usually used is the mean squared error between the predicted Q-values and the target Q-values computed using the reward observed from the environment and the Q-values from the target network.
 
 ## The Rewards
 Our current reward system is as follows:
@@ -61,16 +62,11 @@ If we represent the reward for playing some move as an integer, we were thinking
 - for playing a legal move, small positive reward (+1)
 - for drawing a card, small negative reward, possibly proportional to the number of cards drawn (-1)
 - for playing a card and winning the game (getting rid of its last card), a large positive reward (+100)
-- for playing an illegal move and losing the game, a large negative reward (-100)
+- for playing an illegal move and losing the game, a large negative reward (-25)
 
 Since we're still in the early stages of our project, this reward system is definitely tentative and will most likely change as we continue to work with our RL model. 
 
 Our current reward system feels a little barebones, but we are aiming to increase its complexity as we continue working on this project. For example, we definitely want the model to learn complex and smart decisions based on the previous game states (i.e. exactly what cards have been played may impact which card(s) it wants to play). 
-
-Additionally, we're still researching on which learning model to train our RL agent on. Currently, we're deciding between:
-- Stochastic Gradient Descent + Ascent (losing + winning games, respectively)
-- Q-Learning (learning optimal moves by determining their value)
-- SARSA
 
 We're currently in the process of researching several concepts, topics, and papers to further our learning on Reinforcement Learning so that our RL Agent can improve the most at Uno.
 
@@ -82,15 +78,6 @@ With this project, we aim to optimize the RL model by essentially becoming the a
 - what we've learned from previous experiences (i.e. how making certain actions impact our reward)
 
 For now, we are thinking of starting simple with having the agent make its decisions based off of the agent's current hand, the current top/face up card, and how big the penalty is. 
-
-Additionally, we were thinking of tackling a potential problem with our agent's hand representation in two different ways:
-- Encoding the hand as a vector of 52 points, 1 for each distinct card. This means for some cases, the vector might store 0, 1, or 2, depending on how many of a distinct card the agent is holding.
-  - For example, if the agent has both (Red, 1) cards in hand, then it would be a 2 in the encoded vector array. However, this might lead to normalization issues later.
-- Encoding the hand as a vector of 100 points, 1 for every single card. With this implementation the hand is essentially one-hot encoded, but the tradeoff is that it has twice as much data which could make training slower.
-
-Encoding the current top card will be done in a one-hot array of size 17. The first 4 will be one-hot encoded for the color of the card, and the next 13 will be one-hot encoded for the value of the card.
-
-The penalty is the number of cards the agent has to draw. This is potentially difficult to implement, since we have to encode it in a finite number of units but it could technically stack for a really long time (in the case where players keep stacking Plus2 cards). So we propose starting with an array of size 3, one-hot encoded for how high the penalty is. If it's 1 (for drawing one card, the standard) then the vector would be `[0, 0, 0]`. For every Plus2 card that's stacked, the vector has a 1 slightly further to the right. If there are 3 or more Plus2 cards stacked, then the vector would be `[0, 0, 1]`.
 
 ---
 **Resources and other credits**:
