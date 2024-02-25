@@ -72,19 +72,25 @@ The processing of this data (i.e. the state representation) is done by the RL Ca
 ## Evaluate your model compare training vs test error
 The way that RL Card suggests to evaluate the model is by running tournament simulations which essentially evaluate the model at the current state of training. We evaluated the agent every 1000 episodes for 100 evaluation games and logged the average reward from the tournament simulation. We have two sets of training data: (1) on 10,000 episodes and (2) on 50,000 episodes.
 
-![fig_10K.png](fig_10K.png)
+![fig_10K.png](./data/fig_10K.png)
 
-![fig_50K.png](fig_50K.png)
+![fig_50K.png](./data/fig_50K.png)
+
+Here are some results from a random agent on Uno:
+
+![random_100K.png](./data/random_100K.png)
 
 ## Where does your model fit in the fitting graph.
+The metric of the fitting graph is the average reward from the tournament simulation. The average reward is the average reward that the agent receives from the tournament simulation (i.e. total payoff divided by the number of games). The average reward is a good metric to evaluate the model because it gives us a good idea of how well the model is performing.
+
 From our current state of our model, we think that the model is actually learning, but only a very small amount. From the 50K figure, we can see that the model is actually starting to slowly average out around 0.2 reward average. This is a good sign, but we are still not satisfied with the model's performance. We believe that the model can be improved by training it on more episodes and by adjusting the reward system.
+
+By comparing to the random agent, we can see that the model may be learning because the model's data is not *as* random (jump betweens negative and positive rewards) as the random agent's data. However, since the data is not as dense compared to the random agent, we believe that the model is not learning as much as it should be.
 
 ## What are the next 2 models you are thinking of and why?
 Since our project is revolved around training a RL model to play Uno, we plan on training a model with a more complex environment. 
-
-We plan on changing up our following models by adjusting the reward system and trying to see any more immediate changes in the model. 
-
-We are also thinking of training the model on a 4-player environment to be more realistic to the actual game. However, we are aware that this will end up making the model more complex and harder to train.
+ - We plan on changing up our following models by adjusting the reward system and trying to see any more immediate changes in the model. 
+ - We are also thinking of training the model on a 4-player environment to be more realistic to the actual game. However, we are aware that this will end up making the model more complex and harder to train.
 
 ## Conclusion section: What is the conclusion of your 1st model? What can be done to possibly improve it?
 Since this is our first model, we are not expecting it to be perfect. We are expecting to see a lot of room for improvement. We are also expecting to see a lot of room for improvement in our understanding of the model and the environment. We are hoping to learn a lot from this first model and use that knowledge to improve our future models.
