@@ -1,7 +1,7 @@
 # CSE151A Project
 Our project theme is revolved around training a reinforcement learning (RL) model on winning the card game, Uno. Since our project is utilizing reinforcement learning, our data cannot be directly grabbed from online resources and has to be generated through simulating gameplay. We contacted the Professor to recommend any suggestions to how to answer the MS2 and MS3 questions because of this challenge and suggested we think of our data and implementation at a high level, thus leading to the rest of this README.
 
-You can find more details on the milestone READMEs in the `milestones` folder or by clicking [here](https://github.com/nicholaslambs/cse151a_project/blob/main/milestones/ms3/README.md) for the most recent milestone README.
+You can find more details on the milestone READMEs in the `milestones` folder or by clicking [here](https://github.com/nicholaslambs/cse151a_project/blob/main/milestones/ms4/README.md) for the most recent milestone README.
 
 We aim to optimize this model by tweaking the reward system of the model so that it can obtain the best winning choices (i.e. distinguishing between good and poor moves given the current game state).
 
@@ -10,6 +10,8 @@ Currently, our simulation comes from using the RL Card library to train our mode
 For additional references to MS2 answers, please refer to [this other Markdown file](https://github.com/nicholaslambs/cse151a_project/blob/main/milestones/ms2/README.md)
 
 For additional references to MS3 answers, please refer to [this other Markdown file](https://github.com/nicholaslambs/cse151a_project/blob/main/milestones/ms3/README.md)
+
+For additional references to MS4 answers, please refer to [this other Markdown file](https://github.com/nicholaslambs/cse151a_project/blob/main/milestones/ms4/README.md)
 
 Our group is gathering and simulating all this within the Python Notebook, `rl_card.ipynb`. You can find the notebook in the `rl_card` directory or [here](https://github.com/nicholaslambs/cse151a_project/blob/main/rl_card/rl_card.ipynb)
 
@@ -54,30 +56,6 @@ Target Network: To further stabilize training, DQN employs a separate target net
 Epsilon-Greedy Strategy: To balance exploration and exploitation, DQN typically uses an epsilon-greedy strategy, where the agent selects random actions with probability epsilon and the best-known action with probability 1-epsilon. Epsilon is often decayed over time to shift from exploration to exploitation.
 
 Training and Update Rule: The training process involves using the Bellman equation to update the Q-values towards better estimates. The loss function usually used is the mean squared error between the predicted Q-values and the target Q-values computed using the reward observed from the environment and the Q-values from the target network.
-
-## The Rewards
-Our current reward system is as follows:
-
-If we represent the reward for playing some move as an integer, we were thinking of initially trying these reward values:
-- for playing a legal move, small positive reward (+1)
-- for drawing a card, small negative reward, possibly proportional to the number of cards drawn (-1)
-- for playing a card and winning the game (getting rid of its last card), a large positive reward (+100)
-- for playing an illegal move and losing the game, a large negative reward (-25)
-
-Since we're still in the early stages of our project, this reward system is definitely tentative and will most likely change as we continue to work with our RL model. 
-
-Our current reward system feels a little barebones, but we are aiming to increase its complexity as we continue working on this project. For example, we definitely want the model to learn complex and smart decisions based on the previous game states (i.e. exactly what cards have been played may impact which card(s) it wants to play). 
-
-We're currently in the process of researching several concepts, topics, and papers to further our learning on Reinforcement Learning so that our RL Agent can improve the most at Uno.
-
-## Goals Moving Forward
-With this project, we aim to optimize the RL model by essentially becoming the agent. In the current state of our simulation and model, we see:
-- our current hand of cards
-- the top card
-- our score (in terms of rewards)
-- what we've learned from previous experiences (i.e. how making certain actions impact our reward)
-
-For now, we are thinking of starting simple with having the agent make its decisions based off of the agent's current hand, the current top/face up card, and how big the penalty is. 
 
 ---
 **Resources and other credits**:
