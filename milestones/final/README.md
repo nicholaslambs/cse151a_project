@@ -3,6 +3,10 @@
 ## Introduction
 Why chosen? why is it cool? General/Broader impact of having a good predictive mode. i.e. why is this important?
 
+The card game Uno, while appearing simplistic in nature, instead offers a rich oppurtunity for strategic gameplay and quick decision making. This project aims to understand these aspects by developing a Reinforcement Learning (RL) agent capable of mastering Uno. Unlike more deterministic games, Uno's unpredictable nature, retrieved from its draw mechanics and the variety of action cards, requires an RL agent to develop strategies that can adapt to rapidly changing game states and opponent behaviors. This task is not just a challenge; it's a feature that makes the task compelling. The project's coolness factor lies in the endeavor to teach a machine how to navigate a game that combines luck, strategy, and psychology, reflecting the multifaceted decision-making humans engage in daily.
+
+The goal to model and predict gameplay in Uno opens up insights for studying human behavior in competitive collaborative situations. Games serve as simplified models of larger social and strategic systems, where individuals' choices impact each other in multiple ways. In the scope of Uno, we can observe and analyze patterns of behavior, risk-taking, bluffing, and adaptability—skills that are crucial in various aspects of human interaction and decision-making. This deeper understanding can inform the development of more nuanced AI systems capable of interacting with humans in meaningful ways, from negotiating and conflict resolution to enhancing collaborative problem-solving. Thus, the project not only pushes the envelope in game-playing AI but also contributes to our knowledge of human cognitive and social behaviors, offering valuable lessons that can be applied both within and beyond the gaming context.
+
 ## Methods
 this section will include the exploration results, preprocessing steps, models chosen in the order they were executed. Parameters chosen. You can put links here to notebooks and/or code blocks using three ` in markup for displaying code. so it would look like this: ``` MY CODE BLOCK ```
 ### Data Exploration
