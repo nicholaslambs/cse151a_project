@@ -60,6 +60,53 @@ In terms of the action space defined by the RLCard environment, each action is a
 The processing of this data (i.e. the state representation) is done by the RL Card library, so we did not have to do any additional processing. Our job is primarily to adjust the reward system to better train the model from the default system (i.e. +1 for winning, -1 for losing).
 
 ### Model 1
+For our first model, we used a DQN with a multilayer perceptron consisting of two layers containing 64 hidden units, a learning rate of 0.0005 and a batch size of 32. This is reflected in our model initialization:
+
+```python 
+agent = DQNAgent(
+                 num_actions=env.num_actions,
+                 state_shape=env.state_shape[0],
+                 mlp_layers=[64,64],
+                 replay_memory_size=5000,
+                 update_target_estimator_every=100,
+                 epsilon_decay_steps=10000,
+                 learning_rate=0.0005,
+                 batch_size=32,
+                 device=get_device(),
+                 save_path=log_dir
+                 )
+```
+
+Furthermore, we decided to use a simple reward function as follows:
+```python
+def adjust_rewards(trajectories, payoffs):
+    adjusted_trajectories = []
+    for traj in trajectories:
+        adjusted_traj = []
+        for state, action, reward, next_state, done in traj:
+            if action == 60:  # draw a card
+                reward -= 1  # Penalty for drawing a card
+                
+            # Add more conditions for other strategic rewards
+            # increment reward for actions 0-9, play red cards
+            elif 0 <= action <= 9:
+                reward += 1
+            # increment reward for actions 15-24, play green cards
+            elif 15 <= action <= 24:
+                reward += 1
+            # increment reward for actions 30-39, play blue cards
+            elif 30 <= action <= 39:
+                reward += 1
+            # increment reward for actions 45-54, play yellow cards
+            elif 45 <= action <= 54:
+                reward += 1
+                        
+            adjusted_traj.append((state, action, reward, next_state, done))
+        adjusted_trajectories.append(adjusted_traj)
+    return adjusted_trajectories
+```
+As seen above, this simplistic reward function rewards the agent only when it does a good legal action (i.e play any card, as long as it does not draw a card). The notebook containing this first implementation can be found HERE TO DO PLEASE ADD REFERENCE TO A NOTEBOOK
+
 ### Model 2
 ### Model 3
 
