@@ -108,6 +108,91 @@ def adjust_rewards(trajectories, payoffs):
 As seen above, this simplistic reward function rewards the agent only when it does a good legal action (i.e play any card, as long as it does not draw a card). The notebook containing this first implementation can be found HERE TO DO PLEASE ADD REFERENCE TO A NOTEBOOK
 
 ### Model 2
+For our second model, we wanted to focus on improving our reward system and see its impact without altering the architecture of the agent too much. So we used the same model as in __Model 1__, but changed the reward function as follows:
+
+```python
+for state, action, reward, next_state, done in traj:
+    if action == 60:  # Draw a card
+        reward -= 1  # Penalty for drawing a card
+
+    elif action >= 0 and action <= 9:  # Red number cards
+        reward += 1
+    elif action >= 10 and action <= 12:  # Red action cards
+        reward += 3
+    elif action == 13:  # Red wild card
+        reward += 6
+    elif action == 14:  # Red wild and draw 4 card
+        reward += 10
+
+    elif action >= 15 and action <= 24:  # Green number cards
+        reward += 1
+    elif action >= 25 and action <= 27:  # Green action cards
+        reward += 3
+    elif action == 28:  # Green wild card
+        reward += 6
+    elif action == 29:  # Green wild and draw 4 card
+        reward += 10
+
+    elif action >= 30 and action <= 39:  # Blue number cards
+        reward += 1
+    elif action >= 40 and action <= 42:  # Blue action cards
+        reward += 3
+    elif action == 43:  # Blue wild card
+        reward += 6
+    elif action == 44:  # Blue wild and draw 4 card
+        reward += 10
+
+    elif action >= 45 and action <= 54:  # Yellow number cards
+        reward += 1
+    elif action >= 55 and action <= 57:  # Yellow action cards
+        reward += 3
+    elif action == 58:  # Yellow wild card
+        reward += 6
+    elif action == 59:  # Yellow wild and draw 4 card
+        reward += 10
+```
+
+As you can see, we adjusted the reward system to give the agent more rewards for playing special action cards. More specifically, the reward system was adjusted as follows:
+- for playing a normal card move, small positive reward (+1)
+- for drawing a card, small negative reward (-1)
+- for playing a special action card, a larger positive reward (ranging from +3 to +10)
+- winning the game, a large positive reward (+100)
+- losing the game, a large negative reward (-25)
+
+Furthermore, we added some complexity to the model by looking beyond playing certain types of cards and focusing on the state of the game (i.e the number of cards the opponet has) as seen below:
+
+```python
+# Actual game state details
+raw_obs = state['raw_obs']
+
+# Retrieve the number of cards in player's hand
+num_cards_player = len(raw_obs['hand'])
+
+# Provide the number of cards for each player with the current player being index 0
+num_cards_opponent = raw_obs['num_cards'][1] if raw_obs['current_player'] == 0 else raw_obs['num_cards'][0]
+
+if action == 60:  # Draw a card
+    reward -= max(1, 3 - num_cards_player / 7)
+
+# Adjust rewards for action cards based on the opponent's hand size
+action_card_reward_multiplier = max(1, (7 - num_cards_opponent) / 7)
+
+if action in range(10, 15) or action in range(25, 30) or action in range(40, 45) or action in range(55, 60):
+    reward += 2 * action_card_reward_multiplier
+
+if action in range(0, 10) or action in range(15, 25) or action in range(30, 40) or action in range(45, 55):
+    reward += 1 + (3 - num_cards_player / 7)
+```
+
+As you can see, we adjusted the reward system to give the agent a dynamic set of rewards, depending on the state of the game. More specifically, the reward system was adjusted as follows:
+- for playing a normal card move, small positive reward (+1) with a dynamic reward based on the number of cards in the agent's hand
+- for drawing a card, small negative reward (-1) with a dynamic reward based on the number of cards in the agent's hand
+- for playing a special action card, a larger positive reward (ranging from +2 to +10) with a dynamic reward based on the number of cards in the opponent's hand
+- winning the game, a large positive reward (+100)
+- losing the game, a large negative reward (-25)
+
+The notebook containing these changes can be found HERE TODO ADD REFERENCE TO NOTEBOOK PLEASE
+
 ### Model 3
 
 ## Results
