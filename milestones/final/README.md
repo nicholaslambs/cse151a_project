@@ -1,8 +1,6 @@
 # Final Submission
 
 ## Introduction
-Why chosen? why is it cool? General/Broader impact of having a good predictive mode. i.e. why is this important?
-
 The card game Uno, while appearing simplistic in nature, instead offers a rich oppurtunity for strategic gameplay and quick decision making. This project aims to understand these aspects by developing a Reinforcement Learning (RL) agent capable of mastering Uno. Unlike more deterministic games, Uno's unpredictable nature, retrieved from its draw mechanics and the variety of action cards, requires an RL agent to develop strategies that can adapt to rapidly changing game states and opponent behaviors. This task is not just a challenge; it's a feature that makes the task compelling. The project's coolness factor lies in the endeavor to teach a machine how to navigate a game that combines luck, strategy, and psychology, reflecting the multifaceted decision-making humans engage in daily.
 
 The goal to model and predict gameplay in Uno opens up insights for studying human behavior in competitive collaborative situations. Games serve as simplified models of larger social and strategic systems, where individuals' choices impact each other in multiple ways. In the scope of Uno, we can observe and analyze patterns of behavior, risk-taking, bluffing, and adaptability—skills that are crucial in various aspects of human interaction and decision-making. This deeper understanding can inform the development of more nuanced AI systems capable of interacting with humans in meaningful ways, from negotiating and conflict resolution to enhancing collaborative problem-solving. Thus, the project not only pushes the envelope in game-playing AI but also contributes to our knowledge of human cognitive and social behaviors, offering valuable lessons that can be applied both within and beyond the gaming context.
@@ -10,6 +8,21 @@ The goal to model and predict gameplay in Uno opens up insights for studying hum
 ## Methods
 this section will include the exploration results, preprocessing steps, models chosen in the order they were executed. Parameters chosen. You can put links here to notebooks and/or code blocks using three ` in markup for displaying code. so it would look like this: ``` MY CODE BLOCK ```
 ### Data Exploration
+Because of the nature of our task, our data would not be accessible through online resources or already gathered data. For this reason, we had to gather retrieve our own data by running through thousands of simulation, and feeding the agent with the data from playing against other agents. Thus, we pitted 3 'random' agents against each other to observe how many turns a typical random agent would take to win the game, and retrieved the following results:
+
+![image](https://github.com/nicholaslambs/cse151a_project/assets/57384225/401eb7f6-c681-471b-9a7d-caa4d5ff385a)
+
+From this data, we can see that most of these Uno games end in around 25-50 games (when playing against a relatively small number of players). For this reason, we can observe that the RL agent can use this information to learn several things:
+
+- adjust the reward function by winning in fewer turns
+- understanding the common trend of where a player might win
+- judging the RL agent based on the distribution of turns (i.e reward the agent more if they win really early, and less if it takes longer).
+
+Similarly, we can also observe the expected number of action types that a typical Uno agent would do, as seen in the following bar chart:
+![image](https://github.com/nicholaslambs/cse151a_project/assets/57384225/27a96976-aac5-4c93-b412-ea00af98d205)
+
+It can be seen that drawing cards has the highest action count for random agents, so we instinctly knew to penalize the card draw action. Furthermore, we expect our RL agent to have a better distribution with respect to how many cards it draws - especially when it doesn't need to!
+
 ### Preprocessing
 
 ### Model 1
