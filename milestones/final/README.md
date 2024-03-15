@@ -105,7 +105,49 @@ def adjust_rewards(trajectories, payoffs):
         adjusted_trajectories.append(adjusted_traj)
     return adjusted_trajectories
 ```
-As seen above, this simplistic reward function rewards the agent only when it does a good legal action (i.e play any card, as long as it does not draw a card). The notebook containing this first implementation can be found HERE TO DO PLEASE ADD REFERENCE TO A NOTEBOOK
+As seen above, this simplistic reward function rewards the agent only when it does a good legal action (i.e play any card, as long as it does not draw a card). 
+Finally, our training loop consisted of playing the RL agent against a random agent in the Uno environment, adjusting the trajectories of our model with respect to the reward fuction. This is seen as follows: 
+```python3
+episode_num = 25000  # Number of episodes 
+
+evaluate_every = 1000 # Evaluate the agent every X episodes
+evaluate_num = 100  # Number of games played in evaluation
+
+with Logger(log_dir) as logger:
+    for episode in tqdm(range(episode_num)):  # Number of episodes
+
+        trajectories, payoffs = env.run(is_training=True)
+
+        # Assuming 'payoffs' are the game outcomes for each player
+        for i, payoff in enumerate(payoffs):
+            if payoff > 0:  # Assuming a positive payoff means winning
+                payoffs[i] = 100
+            else:
+                payoffs[i] = -25
+
+        trajectories = reorganize(trajectories, payoffs)
+
+        # After reorganizing the trajectories, adjust the rewards
+        trajectories = adjust_rewards(trajectories, payoffs)
+        # print(trajectories[0])
+
+        for ts in trajectories[0]:
+            block()
+            agent.feed(ts)
+            unblock()
+        
+        if episode % evaluate_every == 0:
+                logger.log_performance(
+                    episode,
+                    tournament(
+                        env,
+                        evaluate_num,
+                    )[0]
+                )
+```
+
+This training loop remained consistent throughout all 3 models trained. 
+The notebook containing this first implementation can be found HERE TO DO PLEASE ADD REFERENCE TO A NOTEBOOK
 
 ### Model 2
 For our second model, we wanted to focus on improving our reward system and see its impact without altering the architecture of the agent too much. So we used the same model as in __Model 1__, but changed the reward function as follows:
@@ -194,6 +236,61 @@ As you can see, we adjusted the reward system to give the agent a dynamic set of
 The notebook containing these changes can be found HERE TODO ADD REFERENCE TO NOTEBOOK PLEASE
 
 ### Model 3
+In this final model implementation, we varied the DQN architecture slightly by changing the number of hidden units in the multilayer perceptron to 128, as 001well as a larger learning rate of 0.001. Thus, our new DQN agent was initialized as follows:
+```python 
+agent = DQNAgent(
+                 num_actions=env.num_actions,
+                 state_shape=env.state_shape[0],
+                 mlp_layers=[128,128], # Changed from 64
+                 replay_memory_size=5000,
+                 update_target_estimator_every=100,
+                 epsilon_decay_steps=10000,
+                 learning_rate=0.001, # Changed from 0.0005
+                 batch_size=32,
+                 device=get_device(),
+                 save_path=log_dir
+                 )
+```
+
+Furthermore, we adjusted the reward function slightly to incorporate a winning factor by incentivizing the agent to accelerate reaching the end of the game (i.e increase rewards that can conclusively lead to winning). This is seen here:
+
+```python3
+def adjust_rewards(trajectories, payoffs):
+    adjusted_trajectories = []
+    for traj in trajectories:
+        adjusted_traj = []
+        for state, action, reward, next_state, done in traj:
+            # Actual game state details
+            raw_obs = state['raw_obs']
+            
+            # Retrieve the number of cards in player's hand
+            num_cards_player = len(raw_obs['hand'])
+            
+            # Provide the number of cards for each player with the current player being index 0
+            num_cards_opponent = raw_obs['num_cards'][1] if raw_obs['current_player'] == 0 else raw_obs['num_cards'][0]
+            
+            # A larger reward if the agent has fewer cards
+            winning_factor = (7 - num_cards_player) / 7
+
+            if action == 60:  # Draw a card
+                reward -= max(1, 3 - num_cards_player / 7)
+
+            # Adjust rewards for action cards based on the opponent's hand size
+            action_card_reward_multiplier = max(1, (7 - num_cards_opponent) / 7)
+
+            if action in range(10, 15) or action in range(25, 30) or action in range(40, 45) or action in range(55, 60):
+                reward += 2 * action_card_reward_multiplier * winning_factor
+
+            if action in range(0, 10) or action in range(15, 25) or action in range(30, 40) or action in range(45, 55):
+                reward += 1 + (3 - num_cards_player / 7) * winning_factor
+                
+            if num_cards_player <=2:
+                reward +=5
+
+            adjusted_traj.append((state, action, reward, next_state, done))
+        adjusted_trajectories.append(adjusted_traj)
+    return adjusted_trajectories
+```
 
 ## Results
 This will include the results from the methods listed above (C). You will have figures here about your results as well.
