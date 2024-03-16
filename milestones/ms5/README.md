@@ -243,8 +243,6 @@ The notebook containing these changes can be found [here](../ms4/rl_card_ms4.ipy
 ### Model 3
 For our final model, we created multiple models to get a better understanding of the impact of the reward system and the model architecture. We indicate the different models by __Model 3.1__ and __Model 3.2__. 
 
-```python
-
 #### Model 3.1
 In this final model implementation, we varied the DQN architecture slightly by changing the number of hidden units in the multilayer perceptron to 128, as well as a larger learning rate of 0.001. Thus, our new DQN agent was initialized as follows:
 ```python 
@@ -386,14 +384,17 @@ The notebook containing these changes can be found [here](../ms5/models/rl_card_
 ### Model 1
 
 __Random Agent__:
+
 ![image](../ms3/data/random_100K.png)
 
 From this, we can see that a random agent has a very unpredictable reward system. This is expected as the agent is not learning from any previous experiences. The reward system is very noisy and averages out around 0 which implies that it wins and loses games at a similar rate.
 
 __RL Agent__ at 10,000 episodes:
+
 ![image](../ms3/data/fig_10K.png)
 
 __RL Agent__ at 50,000 episodes:
+
 ![image](../ms3/data/fig_50K.png)
 
 With our basic implementation of a reward system, we can see that the agent seems to grow in performance over time. The agent's reward system is less noisy and seems to be increasing over time. This implies that the agent is learning from its previous experiences and is able to win more games as it plays more games. It has a higher positive output than the random agent.
@@ -401,18 +402,21 @@ With our basic implementation of a reward system, we can see that the agent seem
 ### Model 2
 #### Model 2.1
 __Improved Reward System__ at 25,000 episodes:
+
 ![image](../ms4/data/fig_25K_StaticActionCards.png)
 
 From this, we can see that the improved reward system has a more consistent reward system. The agent's reward system is less noisy and seems to be increasing even more over time, compared to model 1.
 
 #### Model 2.2
 __Dynamic Reward System__ at 25,000 episodes:
+
 ![image](../ms4/data/fig_25K_DynamicRewards.png)
 
 From this, we can see that the dynamic reward system performs similarly to the static reward system. However, the dynamic reward system still performs slightly better and even peaks higher than the static reward system.
 
 ### Model 3
 __Tweaking DQN parameters__ at 25,000 episodes:
+
 ![image](../ms5/data/params/fig_params_everything_2times.png)
 
 ![image](../ms5/data/params/fig_params_everything_2x_lr_divide10.png)
@@ -427,11 +431,13 @@ From this, we can see that the agent's performance is increasing more rapidly th
 #### Model 3.2
 
 __Lower Learning Rate__ at 50,000 episodes:
+
 ![image](../ms5/data/model2/fig_50K_LRdivide10.png)
 
 From this, we can see that the agent's performance is more controlled and less noisy than the previous models. The agent's reward system seems to be making better decisions than the previous models (i.e. higher reward output). The results are more consistent and higher which implies that the agent is learning better compared to previous models from a more complex reward system.
 
 __Higher Learning Rate__ at 50,000 episodes:
+
 ![image](../ms5/data/model2/fig_50K_LRtimes10.png)
 
 From this, we can see that a higher learning rate makes the agent perform worse. The performance is still better than previous models (i.e. from model 1 and 2), but still performs worse than the lower learning rate model. 
