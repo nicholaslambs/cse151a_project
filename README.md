@@ -17,6 +17,16 @@ For additional references to MS5 answers, please refer to [this other Markdown f
 
 Our group is gathering and simulating all this within the Python Notebook, `rl_card.ipynb`. You can find the notebook in the `rl_card` directory or [here](https://github.com/nicholaslambs/cse151a_project/blob/main/rl_card/rl_card.ipynb)
 
+## Self Implementation
+
+One of the group mates, Jaehoon, has also worked very hard on implementing the simulated Uno environment and RL model from scratch. You can find his work in the `self_implementation` directory. The `self_implementation` directory contains the following files:
+- [unorefactored.ipynb](./self_implementation/unorefactored.ipynb)
+- [unosharedbase2.ipynb](./self_implementation/unosharedbase2.ipynb)
+
+The `unosharedbase2.ipynb` file contains the initial implementation of the Uno environment and the RL model. The `unorefactored.ipynb` file contains the refactored implementation of the Uno environment and the RL model. The refactored implementation is more modular and easier to understand. You can also find the analysis of the progress and the results [here](./self_implementation/analysis.pdf).
+
+Please take a look at the hard work Jaehoon has put into this project! He has done a great job in implementing the Uno environment and the RL model from scratch.
+
 # The Rules of Uno
 You can find the general rules of Uno, [here](https://en.wikipedia.org/wiki/Uno_(card_game)). Since our current implementation (as of MS2 submission) does not support most wild cards, we can ignore any rules regarding following wild cards.
 

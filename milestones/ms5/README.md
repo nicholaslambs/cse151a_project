@@ -3,19 +3,21 @@
 ![image](https://www.godisageek.com/wp-content/uploads/Uno-review1.jpg)
 
 ## Introduction
-The card game Uno, while appearing simplistic in nature, instead offers a rich oppurtunity for strategic gameplay and quick decision making. This project aims to understand these aspects by developing a Reinforcement Learning (RL) agent capable of mastering Uno. Unlike more deterministic games, Uno's unpredictable nature, retrieved from its draw mechanics and the variety of action cards, requires an RL agent to develop strategies that can adapt to rapidly changing game states and opponent behaviors. This task is not just a challenge; it's a feature that makes the task compelling. The project's coolness factor lies in the endeavor to teach a machine how to navigate a game that combines luck, strategy, and psychology, reflecting the multifaceted decision-making humans engage in daily.
+The card game Uno, while appearing simplistic in nature, instead offers a rich oppurtunity for strategic gameplay and quick decision making. This project aims to understand these aspects by developing a Reinforcement Learning (RL) agent capable of mastering Uno. 
 
-The goal to model and predict gameplay in Uno opens up insights for studying human behavior in competitive collaborative situations. Games serve as simplified models of larger social and strategic systems, where individuals' choices impact each other in multiple ways. In the scope of Uno, we can observe and analyze patterns of behavior, risk-taking, bluffing, and adaptability—skills that are crucial in various aspects of human interaction and decision-making. This deeper understanding can inform the development of more nuanced AI systems capable of interacting with humans in meaningful ways, from negotiating and conflict resolution to enhancing collaborative problem-solving. Thus, the project not only pushes the envelope in game-playing AI but also contributes to our knowledge of human cognitive and social behaviors, offering valuable lessons that can be applied both within and beyond the gaming context.
+Unlike more deterministic games, Uno's unpredictable nature, retrieved from its draw mechanics and the variety of action cards, requires an RL agent to develop strategies that can adapt to rapidly changing game states and opponent behaviors. This task is not just a challenge; it's a feature that makes the task compelling. The project's coolness factor lies in the endeavor to teach a machine how to navigate a game that combines luck and strategy to win.
 
 ## Methods
-For our RL agent, we decided to use a Q-Learning approach. This method focuses on learning the value of taking a specific action in a given state, aiming to maximize the total reward over time. This methodology is particularly suited to Uno, where the game's state changes dynamically with each turn, and the agent must decide from a finite set of possible actions—ranging from playing a card to drawing from the deck—based on the current state of the game.
+For our RL agent, we decided to use a Q-Learning approach. This method focuses on learning the value of taking a specific action in a given state, aiming to maximize the total reward over time. 
 
-Our method involves training a deep neural network to estimate the expected rewards for taking each possible action within a given state. Initially, the network's predictions are based on randomly initialized weights, reflecting the agent's initial lack of understanding the game's dynamics. As the agent plays more games and receives feedback in the form of rewards, we use this data to update the network's weights, improving its predictions about the game's outcome. This process is facilitated by the DQN algorithm's ability to balance exploration of new strategies with the exploitation of known actions (through the use of a Monte Carlo Tree Search). Our state representation for the neural network includes detailed features of the game, such as the agent's current hand, the top card of the discard pile and opponents' hand size providing a comprehensive view of the game's context.
+This methodology is particularly suited to Uno, where the game's state changes dynamically with each turn, and the agent must decide from a finite set of possible actions—ranging from playing a card to drawing from the deck—based on the current state of the game.
+
+Our method involves training a deep neural network to estimate the expected rewards for taking each possible action within a given state. As the agent plays more games and receives feedback in the form of rewards, we use this data to update the network, improving its predictions about the game's outcome. This process is facilitated by the DQN algorithm's ability to balance exploration of new strategies with the exploitation of known actions. The state representation for the neural network includes detailed features of the game, such as the agent's current hand, the top card of the discard pile and opponents' hand size providing a comprehensive view of the game's context.
 
 In particular, we used RL Card library to obtain and simulate the Uno environment, as well as training our DQN (Deep Q Network). You can find their documentation about Uno [here](https://rlcard.org/games.html#uno). 
 
 ### Data Exploration
-Because of the nature of our task, our data would not be accessible through online resources or already gathered data. For this reason, we had to gather retrieve our own data by running through thousands of simulation, and feeding the agent with the data from playing against other agents. Thus, we pitted 3 'random' agents against each other to observe how many turns a typical random agent would take to win the game, and retrieved the following results:
+Due to the nature of our task, our data would not be accessible through online resources or already gathered data. For this reason, we had to gather retrieve our own data by running through thousands of simulation, and feeding the agent with the data from playing against other agents. Thus, we pitted 3 'random' agents against each other to observe how many turns a typical random agent would take to win the game, and retrieved the following results:
 
 ![image](https://github.com/nicholaslambs/cse151a_project/assets/57384225/401eb7f6-c681-471b-9a7d-caa4d5ff385a)
 
@@ -31,7 +33,7 @@ Similarly, we can also observe the expected number of action types that a typica
 It can be seen that drawing cards has the highest action count for random agents, so we instinctly knew to penalize the card draw action. Furthermore, we expect our RL agent to have a better distribution with respect to how many cards it draws - especially when it doesn't need to!
 
 ### Preprocessing
-As mentioned earlier, the data that we're using is the Uno game environment itself. Because of this, we did not have to clean the data, but we did have to filter it to make it more manageable. Thus, we filted the data to only include the necessary information for the model to make decisions. Thanks to the RL Card library, the environment was structured in a way that is easy to work with. The RL Card library represents the states of the game in a multi-dimensional matrix (i.e. a 4x15 matrix for color and card type representation). More specifically:
+As mentioned earlier, the data that we're using is the Uno game environment itself. Because of this, we did not have to clean the data, but we did have to filter it to make it more manageable. Thus, we filtered the data to only include the necessary information for the model to make decisions. Thanks to the RL Card library, the environment was structured in a way that is easy to work with. The RL Card library represents the states of the game in a multi-dimensional matrix (i.e. a 4x15 matrix for color and card type representation). More specifically:
 - the current player's hand
 - the discard pile's top card (target)
 - the cards that have been played in the game
@@ -300,6 +302,8 @@ def adjust_rewards(trajectories, payoffs):
     return adjusted_trajectories
 ```
 
+The notebook containing these changes can be found [here](../ms5/models/rl_card_ms5_model1.ipynb).
+
 #### Model 3.2
 In this final model implementation, we changed the following parameters in the DQN architecture:
 - the replay memory size to 10,000
@@ -376,6 +380,7 @@ def adjust_rewards(trajectories, payoffs):
     return adjusted_trajectories
 ```
 
+The notebook containing these changes can be found [here](../ms5/models/rl_card_ms5_model2.ipynb).
 
 ## Results
 ### Model 1
@@ -408,49 +413,52 @@ From this, we can see that the dynamic reward system performs similarly to the s
 
 ### Model 3
 __Tweaking DQN parameters__ at 25,000 episodes:
-![image](../ms5/data/fig_params_everything_2times.png)
+![image](../ms5/data/params/fig_params_everything_2times.png)
 
-![image](../ms5/data/fig_params_everything_2x_lr_divide10.png)
+![image](../ms5/data/params/fig_params_everything_2x_lr_divide10.png)
 
 We decided to tweak around some parameters to see how it affects the agent's performance. The *first* graph shows what happens to the performance if we were to adjust all the parameters by a factor of 2 from their original values. The *second* graph shows what happens to the performance if we were to adjust the learning rate by dividing it by 10 (making it smaller). We can see that the agent's performance is still increasing over time and changing the learning rate impacts the performance slightly. We can see that making the learning rate larger makes the agent perform roughly the same, but making the learning rate smaller makes the agent perform slightly worse at first and then better later on.
 
 #### Model 3.1
-![image](../ms5/data/fig.png)
+![image](../ms5/data/model1/fig.png)
 
 From this, we can see that the agent's performance is increasing more rapidly than the previous models. The agent's reward system seems to be winning more likely and gaining more rewards over time. This implies that the agent is learning from its previous experiences and is able to win more games as it plays more games. It has a higher positive output than the previous models.
 
 #### Model 3.2
 
 __Lower Learning Rate__ at 50,000 episodes:
-![image](../ms5/data/fig_50K_LRdivide10.png)
+![image](../ms5/data/model2/fig_50K_LRdivide10.png)
 
 From this, we can see that the agent's performance is more controlled and less noisy than the previous models. The agent's reward system seems to be making better decisions than the previous models (i.e. higher reward output). The results are more consistent and higher which implies that the agent is learning better compared to previous models from a more complex reward system.
 
 __Higher Learning Rate__ at 50,000 episodes:
-![image](../ms5/data/fig_50K_LRtimes10.png)
+![image](../ms5/data/model2/fig_50K_LRtimes10.png)
 
 From this, we can see that a higher learning rate makes the agent perform worse. The performance is still better than previous models (i.e. from model 1 and 2), but still performs worse than the lower learning rate model. 
 
 ## Discussion
-This is where you will discuss the why, and your interpretation and your though process from beginning to end. This will mimic the sections you have created in your methods section as well as new sections you feel you need to create. You can also discuss how believable your results are at each step. You can discuss any short comings. It's ok to criticize as this shows your intellectual merit, as to how you are thinking about things scientifically and how you are able to correctly scrutinize things and find short comings. In science we never really find the perfect solution, especially since we know something will probably come up in the future (i.e. donkeys) and mess everything up. If you do it's probably a unicorn or the data and model you chose are just perfect for each other!
-
 ### Model 1
-The first model was a good starting point for our project. We were able to see that the agent was able to learn from its previous experiences and improve its performance over time. However, the agent's performance was not as high as we would have liked. This is likely due to the simplistic reward system that we implemented. The reward system was not able to capture the nuances of the game and was not able to incentivize the agent to make strategic moves. This is likely why the agent's performance was not as high as we would have liked.
+The first model was a good starting point for our project. We were able to see that the agent performed differently than a random agent. The data of the DQN agent had less noise which shows that it was learning from its previous experiences. However, the reward output was still quite low so we knew there was something going wrong with the agent. We decided that the reward system should be improved upon to better incentivize the agent to make strategic moves. Thus, moving forward onto model 2, we had a goal in mind to improve the reward system.
 
 ### Model 2
 #### Model 2.1
-The second model was a good improvement from the first model. We were able to see that the improved reward system was able to capture the nuances of the game and incentivize the agent to make strategic moves. This is likely why the agent's performance was higher than the first model. However, the agent's performance was still not as high as we would have liked. This is likely due to the fact that the reward system was still not able to capture all the nuances of the game and was not able to incentivize the agent to make the best strategic moves.
+The second model was a good improvement from the first model. We were able to see that the improved reward system was able to capture the nuances of the game and incentivize the agent to make strategic moves. This is likely why the agent's performance was higher than the first model. However, the agent's performance was still not as high as we would have liked. Similar to model 1, we wanted to add even more complexity to the model to see if it would improve the agent's performance.
 
 #### Model 2.2
-The second model was a good improvement from the first model. We were able to see that the dynamic reward system was able to capture the nuances of the game and incentivize the agent to make strategic moves. This is likely why the agent's performance was higher than the first model. However, the agent's performance was still not as high as we would have liked. This is likely due to the fact that the reward system was still not able to capture all the nuances of the game and was not able to incentivize the agent to make the best strategic moves.
+To add more complexity to the model's reward system, we decided to make the rewards more dynamic by considering the size of the agent's hand and opponent's hand. This was done to incentivize the agent to make strategic moves that would lead to winning the game. The results showed that the dynamic reward system performed slightly better than the static reward system. This implies that adding complexity to the model's reward system does heavily impact the agent's performance. Thus moving forward, we wanted to continue changing the reward system by considering more strategies and different reward point allocation systems.
 
 ### Model 3
+On top of changing the reward system, we also wanted to see how the DQN parameters would affect the agent's performance. We decided to tweak around some parameters to see how it affects the agent's performance. The results showed that the agent's performance is still increasing over time and changing the learning rate impacts the performance slightly. By tweaking the archiecture's parameters, we can see a slight improvement to the agent's performance by increasing most of the parameters. However, this led to slower processing which implies more resources were required to train the model. 
 
 #### Model 3.1
-The third model was a good improvement from the previous models. We were able to see that the agent's performance was increasing more rapidly than the previous models. The agent's reward system seems to be winning more likely and gaining more rewards over time. This implies that the agent is learning from its previous experiences and is able to win more games as it plays more games. It has a higher positive output than the previous models. This is likely due to the fact that the reward system was able to capture the nuances of the game and was able to incentivize the agent to make the best strategic moves.
+The third model was a good improvement from the previous models. We were able to see that the agent's performance was increasing more rapidly than the previous models. By incentivizing the agent to decrease their hand size and use special action cards more strategically, we can see a good improvement to the agent's reward output. The agent's reward system seems to be winning more likely and gaining more rewards over time. This further confirms our hypothesis that the reward system will heavily impact the agent's performance. 
 
 #### Model 3.2
-The third model was a good improvement from the previous models. We were able to see that the agent's performance was more controlled and less noisy than the previous models. The agent's reward system seems to be making better decisions than the previous models (i.e. higher reward output). The results are more consistent and higher which implies that the agent is learning better compared to previous models from a more complex reward system. This is likely due to the fact that the reward system was able to capture the nuances of the game and was able to incentivize the agent to make the best strategic moves.
+This model was very similar to model 3.1, with some slight modifications and complexity added to the reward system. 
+
+We can see that the reward system here is also performing better than model 3.1 (thus better than all the other models as well). Again, this implies that the reward system is heavily impacting the agent's performance. By incentivizing the agent to make strategic moves that would lead to winning the game. The agent's reward system seems to be making better decisions than the previous models (i.e. higher reward output). The results are more consistent and higher which implies that the agent is learning better compared to previous models from a more complex reward system.
+
+We can also see that the slower learning rate models perform better than the higher learning rate models because there is less noise in the reward system. By having a slower learning rate, the agent is able to make better decisions which leads to a higher reward output. However, the difference in performance is not too significant for 50K episodes, but might be more impactful or relevant when training for a longer period of time (i.e. more episodes).
 
 ## Conclusion
 In conclusion, this project focused on training a reinforcement learning model to win the card game, Uno. We experimented with different reward systems improve the model's performance. The reward system was adjusted to incentivize the agent to make moves that could lead to winning the game, such as playing special action cards and maintaining a smaller hand size.
