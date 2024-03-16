@@ -1,4 +1,4 @@
-# Final Submission
+# Final Submission: Reinforcement Learning in Uno
 
 ![image](https://www.godisageek.com/wp-content/uploads/Uno-review1.jpg)
 
@@ -107,7 +107,7 @@ def adjust_rewards(trajectories, payoffs):
 ```
 As seen above, this simplistic reward function rewards the agent only when it does a good legal action (i.e play any card, as long as it does not draw a card). 
 Finally, our training loop consisted of playing the RL agent against a random agent in the Uno environment, adjusting the trajectories of our model with respect to the reward fuction. This is seen as follows: 
-```python3
+```python
 episode_num = 25000  # Number of episodes 
 
 evaluate_every = 1000 # Evaluate the agent every X episodes
@@ -147,9 +147,10 @@ with Logger(log_dir) as logger:
 ```
 
 This training loop remained consistent throughout all 3 models trained. 
-The notebook containing this first implementation can be found HERE TO DO PLEASE ADD REFERENCE TO A NOTEBOOK
+The notebook containing this first implementation can be found [here](../ms3/rl_card_ms3.ipynb).
 
 ### Model 2
+#### Model 2.1
 For our second model, we wanted to focus on improving our reward system and see its impact without altering the architecture of the agent too much. So we used the same model as in __Model 1__, but changed the reward function as follows:
 
 ```python
@@ -203,6 +204,8 @@ As you can see, we adjusted the reward system to give the agent more rewards for
 
 Furthermore, we added some complexity to the model by looking beyond playing certain types of cards and focusing on the state of the game (i.e the number of cards the opponet has) as seen below:
 
+#### Model 2.2
+
 ```python
 # Actual game state details
 raw_obs = state['raw_obs']
@@ -233,10 +236,15 @@ As you can see, we adjusted the reward system to give the agent a dynamic set of
 - winning the game, a large positive reward (+100)
 - losing the game, a large negative reward (-25)
 
-The notebook containing these changes can be found HERE TODO ADD REFERENCE TO NOTEBOOK PLEASE
+The notebook containing these changes can be found [here](../ms4/rl_card_ms4.ipynb).
 
 ### Model 3
-In this final model implementation, we varied the DQN architecture slightly by changing the number of hidden units in the multilayer perceptron to 128, as 001well as a larger learning rate of 0.001. Thus, our new DQN agent was initialized as follows:
+For our final model, we created multiple models to get a better understanding of the impact of the reward system and the model architecture. We indicate the different models by __Model 3.1__ and __Model 3.2__. 
+
+```python
+
+#### Model 3.1
+In this final model implementation, we varied the DQN architecture slightly by changing the number of hidden units in the multilayer perceptron to 128, as well as a larger learning rate of 0.001. Thus, our new DQN agent was initialized as follows:
 ```python 
 agent = DQNAgent(
                  num_actions=env.num_actions,
@@ -254,7 +262,7 @@ agent = DQNAgent(
 
 Furthermore, we adjusted the reward function slightly to incorporate a winning factor by incentivizing the agent to accelerate reaching the end of the game (i.e increase rewards that can conclusively lead to winning). This is seen here:
 
-```python3
+```python
 def adjust_rewards(trajectories, payoffs):
     adjusted_trajectories = []
     for traj in trajectories:
@@ -292,17 +300,180 @@ def adjust_rewards(trajectories, payoffs):
     return adjusted_trajectories
 ```
 
+#### Model 3.2
+In this final model implementation, we changed the following parameters in the DQN architecture:
+- the replay memory size to 10,000
+- the epislon decay steps is 10,000
+- the learning rate is 0.00005
+- the batch size is 64
+- the number of hidden units in the multilayer perceptron to 128
+
+```python
+# Default parameters for Deep-Q learning Agent
+replay_memory_size = 5000
+epsilon_decay_steps = 10000
+learning_rate = 0.0005
+batch_size = 32
+mlp_layers = [128, 128]
+
+# Adjusting parameters to see how it affects the learning curve
+replay_memory_size = replay_memory_size * 2
+epsilon_decay_steps = epsilon_decay_steps
+learning_rate = learning_rate / 10
+batch_size = batch_size * 2
+mlp_layers = mlp_layers * 1
+```
+
+Furthermore, we adjusted the reward function slightly to incorporate a winning factor by incentivizing the agent to accelerate reaching the end of the game (i.e increase rewards that can conclusively lead to winning). Additionally, the agent gets additional rewards by making the opponent draw cards which grows depending on how mnay cards the opponent has. Also, the agent is incentivized to hold wild cards as their last card so they can immediately win when given the opportunity; however, they gain less reward depending on the size of the opponent so the model doesn't necessarily hold onto wild cards all the time. This is seen here:
+
+```python
+def adjust_rewards(trajectories, payoffs):
+    adjusted_trajectories = []
+    for traj in trajectories:
+        adjusted_traj = []
+        for state, action, reward, next_state, done in traj:
+            # Actual game state details
+            raw_obs = state['raw_obs']
+            
+            # Retrieve the number of cards in player's hand
+            num_cards_player = len(raw_obs['hand'])
+            
+            # Provide the number of cards for each player with the current player being index 0
+            num_cards_opponent = raw_obs['num_cards'][1] if raw_obs['current_player'] == 0 else raw_obs['num_cards'][0]
+
+            # Adjust rewards for action cards based on the opponent's hand size
+            action_card_reward_multiplier = max(1, (7 - num_cards_opponent) / 7)
+
+            # Multiplier to give larger reward if the agent has fewer cards
+            winning_factor = (7 - num_cards_player) / 7 
+
+            if action == 60:  # Draw a card
+                reward -= max(1, 3 - num_cards_player / 7)
+
+            # Reward for playing action cards 
+            if action in range(10, 15) or action in range(25, 30) or action in range(40, 45) or action in range(55, 60):
+                reward += 2 * action_card_reward_multiplier * winning_factor
+
+            # On top of the previous reward, add extra for playing action cards that makes the opponent draw cards
+            if action in [12, 14, 27, 29, 42, 44, 57, 59]:
+                reward += 2 * action_card_reward_multiplier * winning_factor
+
+            # If there's only one card left in agent's hand, add big reward because it's very likely to win if it saves the wild card for the last
+            if num_cards_player == 1 and action in [13, 14, 28, 29, 43, 44, 58, 59]:
+                # However, we don't want to encourage the agent to save the wild card if the opponent has a small hand so we divide the reward
+                reward += 25 / action_card_reward_multiplier
+
+            # Smaller reward for playing normal cards, adjusted based on the number of cards in the player's hand
+            if action in range(0, 10) or action in range(15, 25) or action in range(30, 40) or action in range(45, 55):
+                reward += 1 + (3 - num_cards_player / 7) * winning_factor
+
+            # Incentivize the agent to have fewer cards in hand
+            if (num_cards_player < num_cards_opponent):
+                reward += 1 * winning_factor
+
+            adjusted_traj.append((state, action, reward, next_state, done))
+        adjusted_trajectories.append(adjusted_traj)
+    return adjusted_trajectories
+```
+
+
 ## Results
-This will include the results from the methods listed above (C). You will have figures here about your results as well.
-No exploration of results is done here. This is mainly just a summary of your results. The sub-sections will be the same as the sections in your methods section.
+### Model 1
+
+__Random Agent__:
+![image](../ms3/data/random_100K.png)
+
+From this, we can see that a random agent has a very unpredictable reward system. This is expected as the agent is not learning from any previous experiences. The reward system is very noisy and averages out around 0 which implies that it wins and loses games at a similar rate.
+
+__RL Agent__ at 10,000 episodes:
+![image](../ms3/data/fig_10K.png)
+
+__RL Agent__ at 50,000 episodes:
+![image](../ms3/data/fig_50K.png)
+
+With our basic implementation of a reward system, we can see that the agent seems to grow in performance over time. The agent's reward system is less noisy and seems to be increasing over time. This implies that the agent is learning from its previous experiences and is able to win more games as it plays more games. It has a higher positive output than the random agent.
+
+### Model 2
+#### Model 2.1
+__Improved Reward System__ at 25,000 episodes:
+![image](../ms4/data/fig_25K_StaticActionCards.png)
+
+From this, we can see that the improved reward system has a more consistent reward system. The agent's reward system is less noisy and seems to be increasing even more over time, compared to model 1.
+
+#### Model 2.2
+__Dynamic Reward System__ at 25,000 episodes:
+![image](../ms4/data/fig_25K_DynamicRewards.png)
+
+From this, we can see that the dynamic reward system performs similarly to the static reward system. However, the dynamic reward system still performs slightly better and even peaks higher than the static reward system.
+
+### Model 3
+__Tweaking DQN parameters__ at 25,000 episodes:
+![image](../ms5/data/fig_params_everything_2times.png)
+
+![image](../ms5/data/fig_params_everything_2x_lr_divide10.png)
+
+We decided to tweak around some parameters to see how it affects the agent's performance. The *first* graph shows what happens to the performance if we were to adjust all the parameters by a factor of 2 from their original values. The *second* graph shows what happens to the performance if we were to adjust the learning rate by dividing it by 10 (making it smaller). We can see that the agent's performance is still increasing over time and changing the learning rate impacts the performance slightly. We can see that making the learning rate larger makes the agent perform roughly the same, but making the learning rate smaller makes the agent perform slightly worse at first and then better later on.
+
+#### Model 3.1
+![image](../ms5/data/fig.png)
+
+From this, we can see that the agent's performance is increasing more rapidly than the previous models. The agent's reward system seems to be winning more likely and gaining more rewards over time. This implies that the agent is learning from its previous experiences and is able to win more games as it plays more games. It has a higher positive output than the previous models.
+
+#### Model 3.2
+
+__Lower Learning Rate__ at 50,000 episodes:
+![image](../ms5/data/fig_50K_LRdivide10.png)
+
+From this, we can see that the agent's performance is more controlled and less noisy than the previous models. The agent's reward system seems to be making better decisions than the previous models (i.e. higher reward output). The results are more consistent and higher which implies that the agent is learning better compared to previous models from a more complex reward system.
+
+__Higher Learning Rate__ at 50,000 episodes:
+![image](../ms5/data/fig_50K_LRtimes10.png)
+
+From this, we can see that a higher learning rate makes the agent perform worse. The performance is still better than previous models (i.e. from model 1 and 2), but still performs worse than the lower learning rate model. 
 
 ## Discussion
-This is where you will discuss the why, and your interpretation and your though process from beginning to end. This will mimic the sections you have created in your methods section as well as new sections you feel you need to create. You can also discuss how believable your results are at each step. You can discuss any short comings. It's ok to criticize as this shows your intellectual merit, as to how you are thinking about things scientifically and how you are able to correctly scrutinize things and find short comings. In science we never really find the perfect solution, especially since we know something will probably come up int he future (i.e. donkeys) and mess everything up. If you do it's probably a unicorn or the data and model you chose are just perfect for each other!
+This is where you will discuss the why, and your interpretation and your though process from beginning to end. This will mimic the sections you have created in your methods section as well as new sections you feel you need to create. You can also discuss how believable your results are at each step. You can discuss any short comings. It's ok to criticize as this shows your intellectual merit, as to how you are thinking about things scientifically and how you are able to correctly scrutinize things and find short comings. In science we never really find the perfect solution, especially since we know something will probably come up in the future (i.e. donkeys) and mess everything up. If you do it's probably a unicorn or the data and model you chose are just perfect for each other!
+
+### Model 1
+The first model was a good starting point for our project. We were able to see that the agent was able to learn from its previous experiences and improve its performance over time. However, the agent's performance was not as high as we would have liked. This is likely due to the simplistic reward system that we implemented. The reward system was not able to capture the nuances of the game and was not able to incentivize the agent to make strategic moves. This is likely why the agent's performance was not as high as we would have liked.
+
+### Model 2
+#### Model 2.1
+The second model was a good improvement from the first model. We were able to see that the improved reward system was able to capture the nuances of the game and incentivize the agent to make strategic moves. This is likely why the agent's performance was higher than the first model. However, the agent's performance was still not as high as we would have liked. This is likely due to the fact that the reward system was still not able to capture all the nuances of the game and was not able to incentivize the agent to make the best strategic moves.
+
+#### Model 2.2
+The second model was a good improvement from the first model. We were able to see that the dynamic reward system was able to capture the nuances of the game and incentivize the agent to make strategic moves. This is likely why the agent's performance was higher than the first model. However, the agent's performance was still not as high as we would have liked. This is likely due to the fact that the reward system was still not able to capture all the nuances of the game and was not able to incentivize the agent to make the best strategic moves.
+
+### Model 3
+
+#### Model 3.1
+The third model was a good improvement from the previous models. We were able to see that the agent's performance was increasing more rapidly than the previous models. The agent's reward system seems to be winning more likely and gaining more rewards over time. This implies that the agent is learning from its previous experiences and is able to win more games as it plays more games. It has a higher positive output than the previous models. This is likely due to the fact that the reward system was able to capture the nuances of the game and was able to incentivize the agent to make the best strategic moves.
+
+#### Model 3.2
+The third model was a good improvement from the previous models. We were able to see that the agent's performance was more controlled and less noisy than the previous models. The agent's reward system seems to be making better decisions than the previous models (i.e. higher reward output). The results are more consistent and higher which implies that the agent is learning better compared to previous models from a more complex reward system. This is likely due to the fact that the reward system was able to capture the nuances of the game and was able to incentivize the agent to make the best strategic moves.
 
 ## Conclusion
-This is where you do a mind dump on your opinions and possible future directions. Basically what you wish you could have done differently. Here you close with final thoughts
+In conclusion, this project focused on training a reinforcement learning model to win the card game, Uno. We experimented with different reward systems improve the model's performance. The reward system was adjusted to incentivize the agent to make moves that could lead to winning the game, such as playing special action cards and maintaining a smaller hand size.
+
+We also experimented with different model architectures, such as changing the number of hidden units in the multilayer perceptron and adjusting the learning rate. These changes were made in an attempt to improve the model's learning efficiency and overall performance.
+
+However, despite these adjustments, the model's performance still has room for improvement. The data from the tournament simulations showed that while the model was able to win more games and lose fewer games than the initial model, it still occasionally dipped into negative rewards. This suggests that the model is not learning as effectively as desired.
+
+Moving forward, further optimization of the reward system and tweaking of the model parameters could potentially lead to a better learning model. By continuing to refine the reward system and adjust the model parameters, it may be possible to train a model that can consistently achieve a higher win rate. This project serves as a valuable exploration into the application of reinforcement learning in game-playing scenarios, and the lessons learned can be applied to future projects and research.
 
 ## Collaboration
-This is a statement of contribution by each member. This will be taken into consideration when making the final grade for each member in the group. Did you work as a team? was there a team leader? project manager? coding? writer? etc. Please be truthful about this as this will determine individual grades in participation. There is no job that is better than the other. If you did no code but did the entire write up and gave feedback during the steps and collaborated then you would still get full credit. If you only coded but gave feedback on the write up and other things, then you still get full credit. If you managed everyone and the deadlines and setup meetings and communicated with teaching staff only then you get full credit. Every role is important as long as you collaborated and were integral to the completion of the project. If the person did nothing. they risk getting a big fat 0. Just like in any job, if you did nothing, you have the risk of getting fired. Teamwork is one of the most important qualities in industry and academia!!!
-
-Name: Title: Contrtibution If the person contributed nothing then just put in writing: Did not participate in the project.
+All group mates contributed to the project. We would meet throughout the weeks to get an idea how to move forward with the project. The following is a list of their contributions:
+- Nicholas Lam
+    - Invested time to research into the RL Card library and how to use it
+    - Wrote the initial code for the first and second models and finished gathering the data on those models
+    - Contributed to the second version of the third model
+    - Gathered data for the second version of the third model
+    - Contributed to the reports for all milestones.
+- Hariz Megat Zariman
+    - Contributed to how to optimize the reward system
+    - Contributed to the first version of the third model
+    - Contributed to the reports for all milestones.
+- Jaehoon Kim
+    - Contributed to how to optimize the reward system
+    - Invested resources to learning more about RL and the concepts related to it + the project
+    - Contributed to the reports for all milestones.
